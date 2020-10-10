@@ -1,3 +1,2 @@
-# NOT FINISHED--WORK IN PROGRESS
 # TNTRun
-A Mini-Game plugin for PocketMine servers!
+A **TNTRun** mini-Game plugin for PocketMine-MP servers!
