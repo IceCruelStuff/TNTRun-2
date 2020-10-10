@@ -12,7 +12,8 @@ use TNTRun\manager\SignHandler;
 use TNTRun\stats\MySQLStatsProvider;
 use TNTRun\stats\SQLiteStatsProvider;
 
-class Main extends PluginBase{
+class Main extends PluginBase {
+
     /** @var stats\StatsProvider */
     private $stats;
     /** @var Arena[] */
@@ -50,11 +51,12 @@ class Main extends PluginBase{
         "f" => TextFormat::WHITE
     ];
 
-    public function onEnable(){
-        if(!file_exists($this->getDataFolder()."/resources"))
+    public function onEnable() : void {
+        if (!file_exists($this->getDataFolder()."/resources")) {
             @mkdir($this->getDataFolder()."/resources", 0755, true);
+        }
         $this->getServer()->getPluginManager()->registerEvents(new EventListener($this), $this);
-        $this->getLogger()->info(TextFormat::GREEN."TNTRun Enabled!");
+        $this->getLogger()->info(TextFormat::GREEN . "TNTRun Enabled!");
         $this->saveDefaultConfig();
         $this->tntRunCommand = new TNTRunCommand($this);
         $this->getServer()->getCommandMap()->register("tntrun", $this->tntRunCommand);
@@ -70,8 +72,9 @@ class Main extends PluginBase{
                 break;
         }
         $this->tag = trim($this->getConfig()->get("tag"));
-        foreach($this->colors as $code => $c)
+        foreach ($this->colors as $code => $c) {
             $this->tag = str_replace($this->getConfig()->get("code").$code, $c, $this->tag);
+        }
         $this->tag .= " ";
 
         $this->signHandler = new SignHandler($this);
@@ -81,68 +84,69 @@ class Main extends PluginBase{
         $this->loadArenas();
     }
 
-    public function getTag(){
+    public function getTag() {
         return $this->tag;
     }
 
-    public function getMessageManager(){
+    public function getMessageManager() {
         return $this->messageManager;
     }
 
-    public function getMoneyManager(){
+    public function getMoneyManager() {
         return $this->moneyManager;
     }
 
-    public function getPlayerData(){
+    public function getPlayerData() {
         return $this->playerData;
     }
 
-    public function getSign(){
+    public function getSign() {
         return $this->signHandler;
     }
 
-    public function getStats(){
+    public function getStats() {
         return $this->stats;
     }
 
-    public function onLoad(){
-        $this->getLogger()->info(TextFormat::YELLOW."Loading TNTRun...");
+    public function onLoad() : void {
+        $this->getLogger()->info(TextFormat::YELLOW . "Loading TNTRun...");
     }
 
-    public function onDisable(){
-        $this->getLogger()->info(TextFormat::RED."TNTRun Disabled");
+    public function onDisable() : void {
+        $this->getLogger()->info(TextFormat::RED . "TNTRun Disabled");
         $this->getConfig()->save();
         $this->saveArenas();
     }
 
-    public function getCommands(){
+    public function getCommands() {
         return $this->tntRunCommand;
     }
 
-    public function getSubCommands(){
-        return $this->getFile()."src/". __NAMESPACE__."/commands/sub/";
+    public function getSubCommands() {
+        return $this->getFile() . "src/" .  __NAMESPACE__ . "/commands/sub/";
     }
 
-    public function getLobby(){
+    public function getLobby() {
         $level = $this->getServer()->getLevelByName($this->getConfig()->get("lobby"));
         return $level !== null ? $level->getSafeSpawn() : $this->getServer()->getDefaultLevel()->getSafeSpawn();
     }
 
-    private function loadArenas(){
-        if(file_exists($this->getDataFolder()."arenas.yml")){
+    private function loadArenas() {
+        if (file_exists($this->getDataFolder()."arenas.yml")) {
             $arenas = yaml_parse_file($this->getDataFolder()."arenas.yml");
-            foreach($arenas as $data){
+            foreach ($arenas as $data) {
                 $this->arenas[strtolower($data["name"])] = new Arena($this, $data);
             }
         }
     }
 
-    private function saveArenas(){
+    private function saveArenas() {
         $save = [];
-        foreach($this->arenas as $arena){
+        foreach ($this->arenas as $arena) {
             $str = $arena->getStructureManager();
             $spawn = $str->getSpawn();
-            $save[] = ["name" => $arena->getName(),
+            $save[] = [
+                "name" => $arena->getName(),
                 "pos1" => [
                     "x" => $str->getPos1()["x"],
                     "z" => $str->getPos1()["z"]
@@ -153,7 +157,11 @@ class Main extends PluginBase{
                 ],
                 "floors" => $str->getFloors(),
                 "levelName" => $str->getLevelName(),
-                "spawn" => ["x" => $spawn->x, "y" => $spawn->y, "z" => $spawn->z]
+                "spawn" => [
+                    "x" => $spawn->x,
+                    "y" => $spawn->y,
+                    "z" => $spawn->z
+                ]
             ];
         }
         yaml_emit_file($this->getDataFolder()."arenas.yml", $save);
